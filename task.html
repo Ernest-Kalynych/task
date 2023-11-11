@@ -1,0 +1,346 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Spin Wheel</title>
+    <meta name="description" content="Our first page">
+    <meta name="keywords" content="html tutorial template">
+    <style type="text/css" rel="stylesheet">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            min-width: 100vw;
+            background: #787878;
+            font-family: 'Inter', sans-serif;
+
+        }
+
+        .wheelBox {
+            width: 50%;
+            position: relative;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wheelBox .mid {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #9D4343;
+            border-radius: 50%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 12px solid #1F1E1E;
+        }
+
+        .wheelBox .way {
+            clip-path: polygon(100% 0, 0 0, 50% 100%);
+            top:-20px;
+            position: absolute;
+             width: 50px;
+            height: 50px;
+            background: #1F1E1E;
+            z-index: 11;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 6px;
+        }
+
+        .wheelBox .way_in {
+            clip-path: polygon(100% 0, 0 0, 50% 100%);
+            position: absolute;
+             width: 30px;
+             height: 30px;
+            background: #9D4343;
+        }
+        
+        .wheelBox .wheel .number {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wheelBox .wheel .number span {
+            transform: rotate(-45deg);
+            color: #FFFFFF;
+            font-size: 36px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto;
+            width: 100%;
+            height: 100%;
+        }
+
+        button#spin {
+            width: 150px;
+            padding: 12px 20px;
+            margin: 50px;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        input[type=text] {
+            width: 150px;
+            margin: 8px 0;
+            padding: 8px;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        button#addOption {
+            width: 250px;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .grid-item {
+            height: 100%;
+        }
+
+        .prizesDefinition {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: rgba(86, 86, 86, 1);
+            border-radius: 20px;
+            margin: 20px;
+            width: 300px;
+            height: 100%;
+        }
+
+        .wheelDiv {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #previousPrize {
+            margin: 20px;
+            color: white;
+        }
+
+        .prizeFileds {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            height: 95%;
+        }
+
+        .prizeFileds input {
+            margin-right: 10px;
+        }
+
+        .prizeFileds button {
+            background: none;
+            color: inherit;
+            border: none;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+            outline: inherit;
+            color: red;
+        }
+
+        .wheelBox .wheel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            /* transition: transform 5s ease-in-out; */
+        }
+    </style>
+</head>
+<script>
+    var prizesMap = {
+        prize_0: "100$",
+        prize_1: "50$",
+        prize_2: "0$",
+        prize_3: "10$",
+        prize_4: "present",
+        prize_5: "0$",
+        prize_6: "1000$",
+        prize_7: "75$",
+    }
+    var lastIndex = 7;
+    var previousPrize = "";
+
+    function onLoad(prizesNumber) {
+        generateWheelBackground(prizesNumber);
+        document.getElementById("spin").addEventListener("click", rotate);
+        document.getElementById("addOption").addEventListener("click", addOption);
+        refreshFieldsListener();
+    }
+
+    function rotate() {
+        var wheel = document.getElementById("wheel");
+        wheel.style.transition = "";
+        wheel.style.transform = "rotate(" + 0 + "deg)";
+        setTimeout(() => {
+            let prizesNumberDegree = 360 / Object.keys(prizesMap).length;
+            let winIndex = Math.floor(Math.random() * Object.keys(prizesMap).length);
+            let randomRotateDegree = 1080 - winIndex * prizesNumberDegree - prizesNumberDegree / 2;
+            wheel.style.transition = "transform 5s ease-in-out";
+            wheel.style.transform = "rotate(" + randomRotateDegree + "deg)";
+            setTimeout(() => {
+                previousPrize = prizesMap[Object.keys(prizesMap)[winIndex]];
+                console.log(previousPrize);
+                document.querySelector("#previousPrize span").innerHTML=previousPrize;
+            }, 5000);
+        }, 10);
+    }
+
+    function addOption() {
+        if (Object.keys(prizesMap).length == 10) {
+            alert("Max count of prizes is 10");
+            return;
+        }
+        lastIndex += 1;
+
+        //add prize input
+        document.getElementById("prizeFileds").innerHTML +=
+            '<div><input type="text" data-prize=' + lastIndex + '></input>' +
+            '<button data-prize=' + lastIndex + '>X</button></div>';
+
+        //add wheel part
+        document.getElementById("wheel").innerHTML +=
+            '<div class="number" data-prize=' + lastIndex + '><span></span></div>';
+
+        prizesMap["prize_" + lastIndex.toString()] = "";
+        generateWheelBackground(Object.keys(prizesMap).length);
+        refreshFieldsListener();
+    }
+
+    function removeOption(item) {
+        if (Object.keys(prizesMap).length == 2) {
+            alert("Min count of prizes is 2");
+            return;
+        }
+        let prizeIndex = item.getAttribute("data-prize");
+        delete prizesMap["prize_" + prizeIndex.toString()];
+
+        //remove input field
+        document.getElementById("prizeFileds").removeChild(item.parentElement);
+
+        //remove wheel part
+        document.querySelector('#wheel [data-prize="' + prizeIndex + '"]').remove();
+
+        generateWheelBackground(Object.keys(prizesMap).length);
+    };
+
+    function refreshFieldsListener() {
+        //add listener for remove option buttons
+        var removeButtons = document.querySelectorAll("#prizeFileds button");
+        removeButtons.forEach((item) => item.addEventListener("click", function () { removeOption(item) }));
+
+        //add listener for prize fields input
+        var prizeFields = document.querySelectorAll("#prizeFileds input");
+        prizeFields.forEach((item) => item.addEventListener("input", function () {
+            let prizeIndex = item.getAttribute("data-prize");
+            prizesMap["prize_" + lastIndex.toString()] = item.value;
+            item.setAttribute("value", item.value)
+            document.querySelector('#wheel [data-prize="' + prizeIndex + '"] span').innerHTML = item.value;
+        }));
+    }
+
+    function generateWheelBackground(prizesTotalCount) {
+        var unitDegree = 360 / prizesTotalCount;
+        var prizeCounter = 0;
+        var previousDegree = 0;
+        var wheelBackground = "";
+
+        var prizesDivs = document.getElementsByClassName("number");
+        while (prizeCounter < prizesTotalCount) {
+            let nextDegree = previousDegree + unitDegree;
+            if (prizeCounter % 2 === 0) {
+                wheelBackground += "#565656 " + previousDegree.toString() + "deg " + nextDegree.toString() + "deg, ";
+            }
+            else {
+                wheelBackground += "#9D4343 " + previousDegree.toString() + "deg " + nextDegree.toString() + "deg, ";
+            }
+            prizesDivs[prizeCounter].style.transform = "rotate(" + (unitDegree * (prizeCounter + 1) + 45 - unitDegree / 2).toString() + "deg)";
+            previousDegree = nextDegree;
+            prizeCounter++;
+        }
+        document.getElementById("wheel").style.background = "conic-gradient(" + wheelBackground.slice(0, -2) + ")";
+    }
+</script>
+
+<body onload="onLoad(8)">
+    <div class="grid-container">
+        <div class="grid-item">
+            <div id="previousPrize">Previous prize <span></span></div>
+            <div class="wheelDiv">
+                <div class="wheelBox">
+                    <div class="way">
+                        <div class="way_in">
+                        </div>
+                    </div>
+                    <div class="mid"></div>
+                    <div class="wheel" id="wheel">
+                        <div class="number" data-prize="0"><span>100$</span></div>
+                        <div class="number" data-prize="1"><span>50$</span></div>
+                        <div class="number" data-prize="2"><span>0$</span></div>
+                        <div class="number" data-prize="3"><span>10$</span></div>
+                        <div class="number" data-prize="4"><span>present</span></div>
+                        <div class="number" data-prize="5"><span>0$</span></div>
+                        <div class="number" data-prize="6"><span>1000$</span></div>
+                        <div class="number" data-prize="7"><span>75$</span></div>
+                    </div>
+
+                </div>
+                <button type="button" class="spin" id="spin">SPIN</button>
+            </div>
+        </div>
+        <div class="grid-item">
+            <div class="prizesDefinition">
+                <div id="prizeFileds" class="prizeFileds">
+                    <div><input type="text" value="100$" data-prize="0"></input><button data-prize="0">X</button></div>
+                    <div><input type="text" value="50$" data-prize="1"></input><button data-prize="1">X</button></div>
+                    <div><input type="text" value="0$" data-prize="2"></input><button data-prize="2">X</button></div>
+                    <div><input type="text" value="10$" data-prize="3"></input><button data-prize="3">X</button></div>
+                    <div><input type="text" value="present" data-prize="4"></input><button data-prize="4">X</button>
+                    </div>
+                    <div><input type="text" value="0$" data-prize="5"></input><button data-prize="5">X</button></div>
+                    <div><input type="text" value="1000$" data-prize="6"></input><button data-prize="6">X</button></div>
+                    <div><input type="text" value="75$" data-prize="7"></input><button data-prize="7">X</button></div>
+                </div>
+                <button id="addOption" type="button">ADD OPTION</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
